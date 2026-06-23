@@ -120,3 +120,84 @@ ALLOWED_TRANSITIONS = {
     SUBMITTED: [APPROVED, REFUSED, CANCELLED],
 }
 ```
+
+## Remarks
+### "foreign_keys" param
+Make sqlalchemy what foreign key when from the same table (with two or more key from the same table)
+```python
+    employee: Mapped["Employee"] = relationship(
+        foreign_keys=[employee_id], back_populates="leave_requests" 
+    )
+
+    manager: Mapped["Employee | None"] = relationship(
+        foreign_keys=[decided_by_id], back_populates="managed_requests"
+    )
+```
+### TYPE_CHECKING
+    `TYPE_CHECKING` from Python's `typing` module is a constant that is `False` at runtime but treated as `True` by type checkers, allowing you to import types or define type-only code without affecting runtime behavior or causing circular imports.
+
+```python
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.employee import Employee
+    from app.models.leave_type import LeaveType
+```
+
+### Enum with SQLAlchemy
+```python
+from enum import Enum
+
+class LeaveRequestStatus(str, Enum):
+    DRAFT = "draft"
+    SUBMITTED = "submitted"
+    CANCELLED = "cancelled"
+    APPROVED = "approved"
+    REFUSED = "refused"
+```
+
+```python
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy.orm import Mapped, mapped_column
+
+from .enums import LeaveRequestStatus
+
+
+class LeaveRequest(Base):
+    __tablename__ = "leave_requests"
+
+    status: Mapped[LeaveRequestStatus] = mapped_column(
+        SQLEnum(LeaveRequestStatus),
+        nullable=False,
+        default=LeaveRequestStatus.DRAFT,
+    )
+```
+
+
+### Alembic
+- Init Alembic
+```python
+alembic init alembic
+
+```
+- Don't forget to update the next field with your own database access in alembic.ini 
+```console
+sqlalchemy.url = postgresql://postgres:postgres@localhost:5432/leave_management
+```
+
+- Same in config.py
+```python
+DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/leave_management"
+```
+
+- env.py
+```python
+from app.database.base import Base
+from app.models import *
+# ...
+target_metadata = Base.metadata 
+```
+- Autogenerate version
+```python
+alembic revision --autogenerate -m "Init Tables"
+```
