@@ -31,6 +31,6 @@ class LeaveRequest(Base):
         nullable=False
     )
     
-    manager: Mapped["Employee | None"] = relationship(back_populates="managed_requests")
-    employee: Mapped["Employee"] = relationship(back_populates="leave_requests")
+    manager: Mapped["Employee | None"] = relationship(foreign_keys=[decided_by_id], back_populates="managed_requests")
+    employee: Mapped["Employee"] = relationship(foreign_keys=[employee_id], back_populates="leave_requests")
     leave_type: Mapped["LeaveType"] = relationship()
