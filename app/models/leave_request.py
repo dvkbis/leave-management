@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING
 from datetime import datetime
 from sqlalchemy import String, ForeignKey
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import mapped_column, relationship, Mapped
 from app.database.base import Base
+from .enums import LeaveRequestStatus
 
 if TYPE_CHECKING:
     from app.models.employee import Employee
@@ -14,7 +16,11 @@ class LeaveRequest(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     start_date: Mapped[datetime] = mapped_column(nullable=False)
     end_date: Mapped[datetime] = mapped_column(nullable=False)
-    status: Mapped[str] = mapped_column(String(20), nullable=False, default="draft")
+    status: Mapped[LeaveRequestStatus] = mapped_column(
+        SQLEnum(LeaveRequestStatus),
+        nullable=False,
+        default=LeaveRequestStatus.DRAFT,
+    )
     reason: Mapped[str | None] = mapped_column(String(255))
     requested_at: Mapped[datetime] = mapped_column(nullable=False)
     decided_at: Mapped[datetime | None]
