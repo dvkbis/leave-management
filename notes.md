@@ -173,7 +173,11 @@ class LeaveRequest(Base):
     )
 ```
 
+- See the actual values used by SQLAlchemy for the enum
+```console
+SELECT unnest(enum_range(NULL::leaverequeststatus));
 
+```
 ### Alembic
 - Init Alembic
 ```python
@@ -201,3 +205,6 @@ target_metadata = Base.metadata
 ```python
 alembic revision --autogenerate -m "Init Tables"
 ```
+
+
+## 
