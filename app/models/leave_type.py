@@ -1,5 +1,5 @@
 from sqlalchemy import String
-from sqlalchemy.orm import relationship, mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped
 from app.database.base import Base
 
 class LeaveType(Base):
@@ -12,5 +12,3 @@ class LeaveType(Base):
     )
     allocated_days: Mapped[int]
     require_approval: Mapped[bool] = mapped_column(nullable=False)
-
-    

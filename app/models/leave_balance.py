@@ -1,10 +1,13 @@
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, mapped_column, Mapped
+from typing import TYPE_CHECKING
 from app.database.base import Base
 
-from app.models.employee import Employee
-from app.models.leave_type import LeaveType
 
+if TYPE_CHECKING:
+    from app.models.employee import Employee
+    from app.models.leave_type import LeaveType 
+       
 class LeaveBalance(Base):
     __tablename__ = "leave_balance"
 
