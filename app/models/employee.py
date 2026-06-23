@@ -7,6 +7,7 @@ from app.database.base import Base
 
 if TYPE_CHECKING:
     from app.models.leave_request import LeaveRequest
+    from app.models.leave_balance import LeaveBalance
 
 
 class Employee(Base):
@@ -32,4 +33,8 @@ class Employee(Base):
     managed_requests: Mapped[list["LeaveRequest"]] = relationship(
         foreign_keys="LeaveRequest.decided_by_id",
         back_populates="manager"
+    )
+
+    leave_balance: Mapped[list["LeaveBalance"]] = relationship(
+        back_populates="employee"
     )

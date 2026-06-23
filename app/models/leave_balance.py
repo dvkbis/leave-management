@@ -29,5 +29,7 @@ class LeaveBalance(Base):
         nullable= False
     )
 
-    employee: Mapped["Employee"] = relationship()
+    employee: Mapped["Employee"] = relationship(
+        back_populates="leave_balance"
+    )
     leave_type: Mapped["LeaveType"] = relationship()
