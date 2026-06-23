@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from app.database.session import SessionLocal
-from app.models.employee import Employee
+from app.models import Employee
 
 session = SessionLocal()
 
