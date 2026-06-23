@@ -30,7 +30,7 @@ class LeaveService():
             raise ValueError(f"Permission Denied!")
                   
         if can_transition(request.status, LeaveRequestStatus.REFUSED) == False:
-            raise ValueError(f"Cannot change status from {request.status} to {LeaveRequestStatus.APPROVED}")
+            raise ValueError(f"Cannot change status from {request.status} to {LeaveRequestStatus.REFUSED}")
         
         self.manage_request(manager_id, request, LeaveRequestStatus.REFUSED)
         session.commit()
@@ -45,7 +45,7 @@ class LeaveService():
             raise ValueError(f"Permission Denied!")
                   
         if can_transition(request.status, LeaveRequestStatus.CANCELLED) == False:
-            raise ValueError(f"Cannot change status from {request.status} to {LeaveRequestStatus.APPROVED}")
+            raise ValueError(f"Cannot change status from {request.status} to {LeaveRequestStatus.CANCELLED}")
         
         self.manage_request(manager_id, request, LeaveRequestStatus.CANCELLED)
         session.commit()
@@ -56,3 +56,17 @@ class LeaveService():
         request.decided_at = datetime.now()
         request.status = new_statut
 
+    def submit_request(self, session: Session, employee_id: int, request_id: int):
+        request = session.get(LeaveRequest, request_id)
+        
+        if request is None:
+            raise ValueError(f"No Request with this ID")
+        
+        if request.employee_id != employee_id:
+            raise ValueError(f"Permission Denied!")
+        
+        if not can_transition(request.status, LeaveRequestStatus.SUBMITTED):
+            raise ValueError(f"Cannot change status from {request.status} to {LeaveRequestStatus.SUBMITTED}")
+        
+        request.requested_at = datetime.now()
+        request.status = LeaveRequestStatus.SUBMITTED
