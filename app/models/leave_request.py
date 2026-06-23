@@ -36,3 +36,20 @@ class LeaveRequest(Base):
         foreign_keys=[decided_by_id], back_populates="managed_requests"
     )
     leave_type: Mapped["LeaveType"] = relationship()
+
+    def __repr__(self) -> str:
+        return (
+            f"LeaveRequest("
+            f"id={self.id}, "
+            f"status={self.status}, "
+            f"start_date={self.start_date}, "
+            f"end_date={self.end_date}, "
+            f"employee_id={self.employee_id}"
+            f")"
+        )
+    
+    def to_dict(self):
+        return {
+            column.name: getattr(self, column.name)
+            for column in self.__table__.columns
+        }
