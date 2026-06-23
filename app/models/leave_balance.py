@@ -13,7 +13,7 @@ class LeaveBalance(Base):
 
     id: Mapped[int] = mapped_column(primary_key= True)
     year: Mapped[int] = mapped_column(nullable= False)
-    allocated_days: Mapped[int]
+    allocated_days: Mapped[int | None]
     used_days: Mapped[int] = mapped_column(
         nullable=False,
         default=0,
