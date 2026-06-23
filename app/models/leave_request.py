@@ -24,7 +24,7 @@ class LeaveRequest(Base):
     reason: Mapped[str | None] = mapped_column(String(255))
     requested_at: Mapped[datetime] = mapped_column(nullable=False)
     decided_at: Mapped[datetime | None]
-    created_at: Mapped[datetime] = mapped_column(default=datetime.now())
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now)
     decided_by_id: Mapped[int | None] = mapped_column(ForeignKey("employee.id"))
     employee_id: Mapped[int] = mapped_column(ForeignKey("employee.id"), nullable=False)
     leave_type_id: Mapped[int] = mapped_column(ForeignKey("leave_type.id"), nullable=False)
