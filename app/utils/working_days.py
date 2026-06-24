@@ -7,7 +7,7 @@ COUNTRY_HOLIDAYS = holidays.country_holidays('BE')
 DAYS_OFF = {5, 6}
 
 """
-    Compute the number of working days between {start_date} (include) and {end_date} (include).
+    Compute and return the number of working days between {start_date} (include) and {end_date} (include).
 """
 def compute_working_days(start_date: datetime, end_date: datetime):
     working_days = 0

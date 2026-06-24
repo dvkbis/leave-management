@@ -1,8 +1,9 @@
-from app.models import LeaveRequest, Employee, LeaveRequestStatus, LeaveType
+from app.models import LeaveRequest, Employee, LeaveRequestStatus, LeaveType, LeaveBalance
 from app.models.enums import can_transition
 from sqlalchemy.orm import Session
 from datetime import datetime
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, extract
+from app.utils.working_days import compute_working_days
 
 class LeaveService():
 
@@ -59,7 +60,7 @@ class LeaveService():
 
     def submit_request(self, session: Session, employee_id: int, request_id: int):
         request = session.get(LeaveRequest, request_id)
-        
+        ## TODO Check if the leave days submitted are possible
         if request is None:
             raise ValueError(f"No Request with this ID")
         
@@ -109,24 +110,32 @@ class LeaveService():
 
         session.add(request)
         session.commit()
+        session.refresh(request)
         return request
     
     def update_draft_request(self, session: Session, leave_request: LeaveRequest, leave_request_id: int, employee_id: int):
         request = session.get(LeaveRequest, leave_request_id)
         
         if request is None:
-            raise ValueError(f"No Request with this ID")
+            raise ValueError(f"No Request with ID {leave_request_id}")
         if request.employee_id != employee_id:
             raise ValueError(f"Permission Denied!")
         if request.status != LeaveRequestStatus.DRAFT:
             raise ValueError(f"Only draft request can be updated")
-                
+        if leave_request.start_date > leave_request.end_date:
+            raise ValueError(f"end_date must be on or after start_date")  
+               
+        leave_type = session.get(LeaveType, leave_request.leave_type_id)
+        if leave_type is None:
+            raise ValueError(f"No Leave Type with ID {leave_request.leave_type_id}")
+                        
         request.start_date = leave_request.start_date
         request.end_date = leave_request.end_date
         request.reason = leave_request.reason
+        request.leave_type_id = leave_request.leave_type_id
 
-        session.refresh(request)
         session.commit()
+        session.refresh(request)
 
         return request
 
@@ -138,6 +147,8 @@ class LeaveService():
             raise ValueError(f"No request with ID {leave_request_id}")
         if request.employee_id != employee_id:
             raise ValueError(f"Permission Denied!")
+        if request.status not in (LeaveRequestStatus.SUBMITTED, LeaveRequestStatus.DRAFT):
+            raise ValueError(f"You can only delete draft or submitted request")
                 
         session.delete(request)
         session.commit()
