@@ -130,7 +130,6 @@ class LeaveService():
 
         return request
 
-    
     ## Only Draft and Submitted request can be removed
     def remove_request(self, session: Session, leave_request_id: int, employee_id: int):
         request = session.get(LeaveRequest, leave_request_id)
@@ -144,5 +143,3 @@ class LeaveService():
         session.commit()
 
         return request
-
-
