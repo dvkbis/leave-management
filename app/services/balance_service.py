@@ -41,4 +41,3 @@ class BalanceService():
         session.refresh(balance)
 
         return balance
-    
