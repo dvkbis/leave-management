@@ -21,13 +21,13 @@ class BalanceService():
         balance.employee_id = employee_id
         balance.allocated_days = leave_type.allocated_days
         balance.used_days = 0
-        
+
         session.add(balance)
         session.commit()
         session.refresh(balance)
 
         return balance
-    
+
     def update_allocated_days(self, session: Session, new_allocated_days:int, balance_id: int, manager_id: int):
         balance = session.get(LeaveBalance, balance_id)
         if balance is None:
@@ -42,4 +42,3 @@ class BalanceService():
 
         return balance
     
-
