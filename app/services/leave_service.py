@@ -154,3 +154,27 @@ class LeaveService():
         session.commit()
 
         return request
+    
+
+    def refresh_balance(self, session: Session, balance_id: int):
+        balance = session.get(LeaveBalance, balance_id)
+        if balance is None:
+            raise ValueError(f"No Leave Balance with ID {balance_id}")
+        
+        requests = session.query(LeaveRequest).filter(
+            LeaveRequest.status == LeaveRequestStatus.APPROVED,
+            LeaveRequest.employee_id == balance.employee_id,
+            LeaveRequest.leave_type_id == balance.leave_type_id,
+            extract("year", LeaveRequest.start_date) == balance.year,
+        ).all()
+
+        days_used = 0
+        for request in requests:
+            days_used += compute_working_days(request.start_date, request.end_date)
+        
+        
+        ## for each > compute_working_days()
+        balance.used_days = days_used
+        session.commit()
+        session.refresh(balance)
+        return balance
