@@ -2,6 +2,7 @@ from app.models import LeaveRequest, Employee, LeaveRequestStatus
 from app.models.enums import can_transition
 from sqlalchemy.orm import Session
 from datetime import datetime
+from sqlalchemy import select, and_
 
 class LeaveService():
 
@@ -70,3 +71,20 @@ class LeaveService():
         
         request.requested_at = datetime.now()
         request.status = LeaveRequestStatus.SUBMITTED
+        session.commit()
+        return request
+
+
+    def get_pending_requests(self, session: Session, manager_id: int):
+        stmt = (
+            select(LeaveRequest)
+            .join(Employee,
+                   and_(
+                       Employee.id == LeaveRequest.employee_id,
+                       LeaveRequest.status == LeaveRequestStatus.SUBMITTED,
+                       Employee.manager_id == manager_id
+                       )
+                )
+            )
+        
+        return session.execute(stmt).all()
