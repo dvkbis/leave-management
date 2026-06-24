@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from datetime import datetime
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, Identity
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import mapped_column, relationship, Mapped
 from app.database.base import Base
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class LeaveRequest(Base):
     __tablename__ = "leave_request"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(Identity(start=1), primary_key=True)
     start_date: Mapped[datetime] = mapped_column(nullable=False)
     end_date: Mapped[datetime] = mapped_column(nullable=False)
     status: Mapped[LeaveRequestStatus] = mapped_column(
