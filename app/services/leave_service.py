@@ -1,4 +1,4 @@
-from app.models import LeaveRequest, Employee, LeaveRequestStatus
+from app.models import LeaveRequest, Employee, LeaveRequestStatus, LeaveType
 from app.models.enums import can_transition
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -88,3 +88,61 @@ class LeaveService():
             )
         
         return session.execute(stmt).all()
+    
+    ## Managing your holidays
+    def create_request(self, session: Session, leave_request: LeaveRequest, employee_id: int):
+        if leave_request.start_date > leave_request.end_date:
+            raise ValueError(f"end_date must be on or after start_date") 
+        
+        leave_type = session.get(LeaveType, leave_request.leave_type_id)
+        if leave_type is None:
+            raise ValueError(f"No Leave Type with ID {leave_request.leave_type_id}")
+        
+        request = LeaveRequest(
+            employee_id= employee_id,
+            start_date= leave_request.start_date,
+            end_date = leave_request.end_date,
+            reason = leave_request.reason,
+            status = LeaveRequestStatus.DRAFT,
+            leave_type_id = leave_request.leave_type_id
+        )
+
+        session.add(request)
+        session.commit()
+        return request
+    
+    def update_draft_request(self, session: Session, leave_request: LeaveRequest, leave_request_id: int, employee_id: int):
+        request = session.get(LeaveRequest, leave_request_id)
+        
+        if request is None:
+            raise ValueError(f"No Request with this ID")
+        if request.employee_id != employee_id:
+            raise ValueError(f"Permission Denied!")
+        if request.status != LeaveRequestStatus.DRAFT:
+            raise ValueError(f"Only draft request can be updated")
+                
+        request.start_date = leave_request.start_date
+        request.end_date = leave_request.end_date
+        request.reason = leave_request.reason
+
+        session.refresh(request)
+        session.commit()
+
+        return request
+
+    
+    ## Only Draft and Submitted request can be removed
+    def remove_request(self, session: Session, leave_request_id: int, employee_id: int):
+        request = session.get(LeaveRequest, leave_request_id)
+
+        if request is None:
+            raise ValueError(f"No request with ID {leave_request_id}")
+        if request.employee_id != employee_id:
+            raise ValueError(f"Permission Denied!")
+                
+        session.delete(request)
+        session.commit()
+
+        return request
+
+
