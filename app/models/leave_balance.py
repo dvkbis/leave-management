@@ -33,3 +33,20 @@ class LeaveBalance(Base):
         back_populates="leave_balance"
     )
     leave_type: Mapped["LeaveType"] = relationship()
+
+    def __repr__(self) -> str:
+        return (
+            f"LeaveBalance("
+            f"id={self.id}, "
+            f"year={self.year}, "
+            f"allocated_days={self.allocated_days}, "
+            f"used_days={self.used_days}, "
+            f"leave_type_id={self.leave_type_id}"
+            f")"
+        )
+    
+    def to_dict(self):
+        return {
+            column.name: getattr(self, column.name)
+            for column in self.__table__.columns
+        }
